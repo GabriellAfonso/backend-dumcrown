@@ -1,12 +1,7 @@
-from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import User
 from django.db import models
 
 # Usuário base do Django
-
-
-class User(AbstractUser):
-    # Você pode adicionar campos extras se necessário
-    pass
 
 
 class PlayerProfile(models.Model):
@@ -19,6 +14,10 @@ class PlayerProfile(models.Model):
     coins = models.IntegerField(default=0)
     credits = models.IntegerField(default=0)
 
+    class Meta:
+        verbose_name = "Player Profile"
+        verbose_name_plural = "Player Profiles"
+
 
 class PlayerStats(models.Model):
     profile = models.OneToOneField(
@@ -28,17 +27,26 @@ class PlayerStats(models.Model):
     losses = models.IntegerField(default=0)
     play_time = models.BigIntegerField(default=0)
 
+    class Meta:
+        verbose_name = "Player Stat"
+        verbose_name_plural = "Player Stats"
+
     def __str__(self):
         return f"{self.profile.nickname} Stats"
 
 
 class LoginHistory(models.Model):
+    # TODO criar sistema pra registrar isso (Provavelmente no websocket)
     user = models.ForeignKey(
-        'User', on_delete=models.CASCADE, related_name='login_history')
+        User, on_delete=models.CASCADE, related_name='login_history')
     login_time = models.DateTimeField(auto_now_add=True)
     logout_time = models.DateTimeField(null=True, blank=True)
     ip_address = models.GenericIPAddressField(null=True, blank=True)
     user_agent = models.TextField(blank=True)
+
+    class Meta:
+        verbose_name = "Login History"
+        verbose_name_plural = "Login Histories"
 
     def __str__(self):
         return f"{self.user.username} - {self.login_time}"
