@@ -1,0 +1,19 @@
+### Registro de usuário
+POST http://127.0.0.1:8000/register/ HTTP/1.1
+Content-Type: application/json
+
+{
+  "username": "teste17",
+  "email": "teste17@email.com",
+  "password": "123456",
+  "password2": "123456"
+}
+
+### Login de usuário
+POST http://127.0.0.1:8000/login/ HTTP/1.1
+Content-Type: application/json
+
+{
+  "username": "teste17",
+  "password": "123456"
+}
