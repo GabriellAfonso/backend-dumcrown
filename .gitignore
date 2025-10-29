@@ -137,3 +137,5 @@ GitHub.sublime-settings
 !.vscode/extensions.json 
 .history
 .vscode
+server/dumcrown/migrations/*.py
+!server/dumcrown/migrations/__init__.py
