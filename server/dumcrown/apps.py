@@ -5,5 +5,5 @@ class DumcrownConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
     name = 'dumcrown'
 
-    def ready(self):
-        import dumcrown.signals
+    def ready(self) -> None:
+        import dumcrown.signals as _

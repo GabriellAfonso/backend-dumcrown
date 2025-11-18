@@ -1,7 +1,6 @@
+# type: ignore
 from django.contrib.auth.models import User
 from django.db import models
-
-# Usuário base do Django
 
 
 class PlayerProfile(models.Model):

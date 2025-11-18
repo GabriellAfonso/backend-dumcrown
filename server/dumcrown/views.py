@@ -3,26 +3,26 @@ from django.contrib.auth import authenticate
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework import generics
+from rest_framework.request import Request
 from rest_framework.permissions import AllowAny
 from .serializers import RegisterSerializer
-from dumcrown.models.player import PlayerProfile
 from django.utils import timezone
 
 
 class RegisterView(APIView):
     permission_classes = (AllowAny,)
 
-    def post(self, request):
+    def post(self, request: Request) -> Response:
         serializer = RegisterSerializer(data=request.data)
         if serializer.is_valid():
-            user = serializer.save()
+            serializer.save()
             return Response({"detail": "User registered successfully"}, status=201)
-        return Response(serializer.errors, status=400)
+
+        return Response(getattr(serializer, "errors"), status=400)
 
 
 class LoginView(APIView):
-    def post(self, request):
+    def post(self, request: Request) -> Response:
         username = request.data.get("username")
         password = request.data.get("password")
 
