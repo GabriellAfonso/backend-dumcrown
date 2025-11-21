@@ -15,23 +15,22 @@ class RegisterSerializer(ModelSerializer[User]):
 
     password = serializers.CharField(
         write_only=True, required=True, validators=[validate_password])
-    password2 = serializers.CharField(write_only=True, required=True)
+
+    password_confirmation = serializers.CharField(
+        write_only=True,
+        required=True
+    )
 
     class Meta:
         model = User
-        fields = ('username', 'email', 'password', 'password2')
+        fields = ('username', 'email', 'password', 'password_confirmation')
 
-    def validate(self, attrs: dict[str, str]) -> dict[str, str]:
-        if attrs['password'] != attrs['password2']:
-            raise serializers.ValidationError(
-                {"password": "Passwords must match."})
-        return attrs
+    def validate_password_confirmation(self, password_confirmation: str) -> str:
+        password = self.initial_data.get("password")
+        if password and password_confirmation != password:
+            raise serializers.ValidationError("Passwords must match.")
+        return password_confirmation
 
     def create(self, validated_data: dict[str, str]) -> User:
-        user = User.objects.create(
-            username=validated_data['username'],
-            email=validated_data['email']
-        )
-        user.set_password(validated_data['password'])
-        user.save()
-        return user
+        validated_data.pop("password_confirmation", None)
+        return User.objects.create_user(**validated_data)
