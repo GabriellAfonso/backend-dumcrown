@@ -1,0 +1,20 @@
+services:
+  dum_server:
+    container_name: dum_server
+    image: dumcrown:latest
+    build:
+      context: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./server:/server
+    depends_on:
+      - dum_redis
+
+  dum_redis:
+    container_name: dum_redis
+    restart: unless-stopped
+    image: redis:8.0
+    ports:
+      - 6379:6379
+    command: [ "redis-server", "--save", "" ]
