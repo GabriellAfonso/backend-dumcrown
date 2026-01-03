@@ -1,6 +1,7 @@
 from django.urls import path
-from game.consumer import TestConsumer
+
+from game.consumers.connection import ConnectionConsumer
 
 websocket_urlpatterns = [
-    path("ws/game/", TestConsumer.as_asgi()),
+    path("ws/connection/", ConnectionConsumer.as_asgi()),
 ]
