@@ -3,8 +3,8 @@ POST http://127.0.0.1:8000/register/ HTTP/1.1
 Content-Type: application/json
 
 {
-  "username": "teste77",
-  "email": "teste77@email.com",
+  "username": "teste7",
+  "email": "teste7@email.com",
   "password": "123456",
   "password_confirmation": "123456"
 }

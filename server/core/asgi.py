@@ -3,14 +3,14 @@ from channels.auth import AuthMiddlewareStack
 from django.core.asgi import get_asgi_application
 from channels.routing import ProtocolTypeRouter, URLRouter
 
-import dumcrown.routing
+import game.routing
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'core.settings')
 
 application = ProtocolTypeRouter({
     'http': get_asgi_application(),
     'websocket': AuthMiddlewareStack(
         URLRouter(
-            dumcrown.routing.websocket_urlpatterns
+            game.routing.websocket_urlpatterns
         ),
     ),
 })

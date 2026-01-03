@@ -15,6 +15,9 @@ python manage.py makemigrations --noinput
 python manage.py migrate --noinput
 sleep 0.2
 
-# Iniciar Daphne
-daphne -b 0.0.0.0 -p 8000 core.asgi:application
+# Dev
+python manage.py runserver 0.0.0.0:8000
+
+# Iniciar Daphne Prod
+# daphne -b 0.0.0.0 -p 8000 core.asgi:application
 
