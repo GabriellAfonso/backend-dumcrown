@@ -1,7 +1,7 @@
 services:
   dum_server:
-    container_name: dum_server
-    image: dumcrown:latest
+    container_name: moon_server
+    image: moon:latest
     build:
       context: .
     ports:
