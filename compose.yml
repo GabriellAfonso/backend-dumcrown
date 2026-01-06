@@ -1,7 +1,7 @@
 services:
-  dum_server:
-    container_name: moon_server
-    image: moon:latest
+  anathema_server:
+    container_name: anathema_server
+    image: anathema:latest
     build:
       context: .
     ports:
@@ -9,10 +9,10 @@ services:
     volumes:
       - ./server:/server
     depends_on:
-      - dum_redis
+      - anathema_redis
 
-  dum_redis:
-    container_name: dum_redis
+  anathema_redis:
+    container_name: anathema_redis
     restart: unless-stopped
     image: redis:8.0
     ports:
