@@ -5,7 +5,7 @@ from django.contrib.auth import get_user_model
 
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
-
+from asgiref.sync import sync_to_async
 User = get_user_model()
 
 
@@ -36,7 +36,7 @@ class JWTAuthMiddleware:
 
             try:
                 validated_token = self.jwt_auth.get_validated_token(token)
-                user = self.jwt_auth.get_user(validated_token)
+                user = await sync_to_async(self.jwt_auth.get_user)(validated_token)
                 scope["user"] = user
             except (InvalidToken, TokenError):
                 pass
