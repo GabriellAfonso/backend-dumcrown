@@ -8,8 +8,8 @@ class PlayerProfile(models.Model):
         User, on_delete=models.CASCADE, related_name='profile')
     nickname = models.CharField(max_length=50, unique=True)
     icon = models.CharField(max_length=255, default='default_icon')
-    experience_points = models.IntegerField(default=0)
     level = models.IntegerField(default=1)
+    experience_points = models.IntegerField(default=0)
     coins = models.IntegerField(default=0)
     credits = models.IntegerField(default=0)
 
