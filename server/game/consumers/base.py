@@ -31,11 +31,20 @@ class BaseConsumer(AsyncJsonWebsocketConsumer):
         if handler:
             await handler(payload)
 
-    async def send_ok(self, **extra):
-        await self.send_json({'status': 'ok', **extra})
+    async def send_event(self, *, type: str, payload: dict | None = None):
+        await self.send_json({
+            'type': type,
+            'payload': payload or {},
+        })
 
-    async def send_error(self, message, **extra):
-        await self.send_json({'status': 'error', 'message': message, **extra})
+    async def send_error(self, type: str, message: str, **extra):
+        await self.send_event(
+            type=type,
+            payload={
+                'error': message,
+                **extra,
+            }
+        )
 
     async def set_heartbeat(self, ttl=30):
         self.heartbeat_key = f'presence:{self.user.id}'
