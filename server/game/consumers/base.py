@@ -1,11 +1,14 @@
 from channels.generic.websocket import AsyncJsonWebsocketConsumer
 from django.core.cache import cache
 from django.utils import timezone
+from channels.layers import get_channel_layer
+import json
 
 
 class BaseConsumer(AsyncJsonWebsocketConsumer):
     user = None
     heartbeat_key = None
+    channel_layer = get_channel_layer()
 
     async def connect(self):
         self.user = self.scope.get('user')
@@ -15,6 +18,8 @@ class BaseConsumer(AsyncJsonWebsocketConsumer):
             return
 
         await self.accept()
+        cache.set(f"user_channel:{self.user.id}",
+                  self.channel_name, timeout=None)
 
     async def disconnect(self, code):
         if self.heartbeat_key:
@@ -34,8 +39,9 @@ class BaseConsumer(AsyncJsonWebsocketConsumer):
     async def send_event(self, *, type: str, payload: dict | None = None):
         await self.send_json({
             'type': type,
-            'payload': payload or {},
+            'payload': json.dumps(payload or {}),
         })
+        print("enviou o teste")
 
     async def send_error(self, type: str, message: str, **extra):
         await self.send_event(
@@ -45,6 +51,13 @@ class BaseConsumer(AsyncJsonWebsocketConsumer):
                 **extra,
             }
         )
+
+    async def client_event(self, event):
+        await self.send_json({
+            "type": event["event"],
+            "payload": json.dumps(event.get("payload", {})),
+        })
+        print(event)
 
     async def set_heartbeat(self, ttl=30):
         self.heartbeat_key = f'presence:{self.user.id}'
