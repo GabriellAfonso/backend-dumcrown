@@ -12,14 +12,17 @@ class ConnectionConsumer(BaseConsumer):
             "online_players",
             self.channel_name,
         )
+        # adiciona channel_name ao cache
 
-        await self.set_heartbeat()
+        # await self.set_heartbeat()
+        await self.send_event(type='Evento de teste', payload={})
 
     async def disconnect(self, code):
         await self.channel_layer.group_discard(
             "online_players",
             self.channel_name,
         )
+        cache.delete(f"user_channel:{self.user.id}")
 
         await super().disconnect(code)
 

@@ -1,6 +1,7 @@
 from .base import BaseConsumer
 from django.core.cache import cache
 import uuid
+from players.services.player_queries import get_player_public_data
 
 
 MATCHMAKING_QUEUE_KEY = "matchmaking_queue"
@@ -25,24 +26,44 @@ class MatchmakingConsumer(BaseConsumer):
 
         # se houver pelo menos 2 jogadores, cria um match
         if len(queue) >= 2:
-            player1 = queue.pop(0)
-            player2 = queue.pop(0)
+            player1 = await get_player_public_data(queue.pop(0))
+            player2 = await get_player_public_data(queue.pop(0))
             cache.set(MATCHMAKING_QUEUE_KEY, queue, timeout=None)
 
             # Cria um ID de match aleatório (ou qualquer lógica)
             match_id = str(uuid.uuid4())
 
             # Envia evento para os dois jogadores conectarem ao MatchConsumer
-            for player_id in [player1, player2]:
-                await self.send_event(
-                    type="match_found",
-                    payload={
-                        "match_id": match_id,
-                        "players": [player1, player2],
-                    }
-                )
+            channel_1 = cache.get(f"user_channel:{player1["id"]}")
+            channel_2 = cache.get(f"user_channel:{player2["id"]}")
 
-            print(f'id da partida{match_id}')
+            await self.channel_layer.send(
+                channel_1,
+                {
+                    "type": "client_event",
+                    "event": "match_found",
+                    "payload": {
+                        "self": player1,
+                        "opponent": player2,
+                        "match_id": match_id,
+                    }
+                }
+            )
+            await self.channel_layer.send(
+                channel_2,
+                {
+                    "type": "client_event",
+                    "event": "match_found",
+                    "payload": {
+                        "self": player2,
+                        "opponent": player1,
+                        "match_id": match_id,
+                    }
+                }
+            )
+
+    async def handle_match_found():
+        print('partida achada kk')
 
     async def leave_queue(self):
         """Remove o jogador da fila caso desconecte antes de parear"""
