@@ -3,6 +3,7 @@ from django.core.cache import cache
 import uuid
 from players.services.player_queries import get_player_public_data
 
+from game.match.manager import MatchManager
 
 MATCHMAKING_QUEUE_KEY = "matchmaking_queue"
 
@@ -11,7 +12,6 @@ class MatchmakingConsumer(BaseConsumer):
 
     async def connect(self):
         await super().connect()
-        print('conectou ao matchmaking')
         await self.join_queue()
 
     async def disconnect(self, code):
@@ -30,8 +30,7 @@ class MatchmakingConsumer(BaseConsumer):
             player2 = await get_player_public_data(queue.pop(0))
             cache.set(MATCHMAKING_QUEUE_KEY, queue, timeout=None)
 
-            # Cria um ID de match aleatório (ou qualquer lógica)
-            match_id = str(uuid.uuid4())
+            match = MatchManager.create_match(player1, player2)
 
             # Envia evento para os dois jogadores conectarem ao MatchConsumer
             channel_1 = cache.get(f"user_channel:{player1["id"]}")
@@ -45,7 +44,7 @@ class MatchmakingConsumer(BaseConsumer):
                     "payload": {
                         "self": player1,
                         "opponent": player2,
-                        "match_id": match_id,
+                        "match_id": match.id,
                     }
                 }
             )
@@ -57,7 +56,7 @@ class MatchmakingConsumer(BaseConsumer):
                     "payload": {
                         "self": player2,
                         "opponent": player1,
-                        "match_id": match_id,
+                        "match_id": match.id,
                     }
                 }
             )

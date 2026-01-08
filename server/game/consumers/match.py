@@ -1,5 +1,8 @@
 from .base import BaseConsumer
 from django.contrib.auth import get_user_model
+from game.match.manager import MatchManager
+import json
+from urllib.parse import parse_qs
 
 User = get_user_model()
 
@@ -10,31 +13,26 @@ class MatchConsumer(BaseConsumer):
         await super().connect()
         # opcional: print quando alguém conecta
         print(f"[MatchConsumer] {self.user.username} connected")
+        self.player = self.user
+
+        # Recupera a mesma instância da partida criada pelo matchmaking
+        self.match_id = await self.get_match_id()
+        self.match = MatchManager.get_match(self.match_id)
+
+        # Registra esse consumer para enviar updates futuros
+        MatchManager.register_consumer(self.player.id, self)
+
+        # await self.send(text_data=json.dumps({
+        #     "type": "match_start",
+        #     "state": self.match.get_state_for_player(self.player.id)
+        # }))
+
+    async def get_match_id(self):
+        query_string = self.scope["query_string"].decode()
+        params = parse_qs(query_string)
+
+        return params.get("matchId", [None])[0]
 
     async def disconnect(self, code):
         await super().disconnect(code)
         print(f"[MatchConsumer] {self.user.username} disconnected")
-
-    async def receive_json(self, content, **kwargs):
-        """
-        Espera receber do cliente algo tipo:
-        {
-            "type": "join_match",
-            "payload": {
-                "match_id": "xxxx",
-                "players": [1, 2]
-            }
-        }
-        """
-        msg_type = content.get("type")
-        payload = content.get("payload", {})
-
-        if msg_type == "join_match":
-            player_ids = payload.get("players", [])
-            players = User.objects.filter(id__in=player_ids)
-            nicknames = [p.username for p in players]
-            print(
-                f"[MatchConsumer] Players in match {payload.get('match_id')}: {nicknames}")
-
-            # opcional: confirmar para o cliente que recebeu
-            await self.send_event(type="match_joined", payload={"players": nicknames})
